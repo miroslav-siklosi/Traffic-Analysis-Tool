@@ -70,7 +70,21 @@ def print_metrics(method, data, y_pred):
     f1 = f1_score(data["y_test"], y_pred)
     print(f"F1-Score of Machine Learning method {method} is", f1)
 
-
+def print_prediction_result(data, y_pred):
+    # [X_test, y_pred] Prediction is correct/Prediction is NOT correct
+    X_test = data["dataset"]["Syslog"]
+    y_test = data['y_test']
+    
+    np.set_printoptions(threshold=np.inf)
+    with open(f"Results/prediction_result.txt", 'w') as f:
+        for i in range(len(X_test)):
+            f.write(f"{X_test[i]} {y_pred[i]}\n")
+            if y_test[i] == y_pred[i]:
+                f.write("Prediction is correct\n")
+            else:
+                 f.write("Prediction is NOT correct\n")
+    print(f"Prediction results saved into prediction_result.txt")
+    
 supervised = ("LR", "K-NN", "SVM", "kSVM", "NB", "DTC", "RFC")
 unsupervised = ("K-Means", "HC")
 deepLearning = ("ANN")
@@ -142,6 +156,7 @@ if args.mode == "research":
             classifier = load_classifier(args.source)
         output_filename = save_classifier(classifier, args.method)
         print(f"Trained classifier saved into file {output_filename}")
+    
     elif args.command == "test": # test
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
@@ -156,6 +171,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
+            print_prediction_result(data, y_pred) 
             
         else: # supervised, deeplearning
             if args.method in deepLearning:
@@ -172,6 +188,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
+            print_prediction_result(data, y_pred) 
             
     else: # trainandtest
         if not is_dataset_source(args.source):
@@ -187,6 +204,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
+            print_prediction_result(data, y_pred) 
         
         else: # supervised, deeplearning
             data = import_dataset(args.source, split=True)
@@ -203,6 +221,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
+            print_prediction_result(data, y_pred) 
             
         """
         ''' Inverting back categorical data '''
@@ -228,17 +247,18 @@ else: # prod
             classifier = load_classifier(args.source)
         output_filename = save_classifier(classifier, args.method)
         print(f"Trained classifier saved into file {output_filename}")
+    
     elif args.command == "test": # test
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
             sys.exit(1)
     
-        data = import_unlabelled_dataset(args.source) # TODO New import
+        data = import_unlabelled_dataset(args.source) 
         if args.method in unsupervised:
             method = methods[args.method]
             y_pred = method(data)
     
-            # TODO print to command line
+            # TODO Label logs and print in file
             
         else: # supervised, deeplearning
             if args.method in deepLearning:
@@ -250,10 +270,7 @@ else: # prod
             else:
                 classifier = load_classifier(f"classifiers/classifier_{args.method}.joblib")
                 y_pred = classifier.predict(data["X_test"])
-        
-                        
-            # TODO print to command line
-            
+
             ''' Inverting back categorical data '''
             # Invert back categories
             invert_y = np.argmax(data["encoded_y"], axis = 1)
