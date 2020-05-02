@@ -204,8 +204,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
-            print_prediction_result(data, y_pred) 
-        
+                    
         else: # supervised, deeplearning
             data = import_dataset(args.source, split=True)
             method = methods[args.method]
@@ -221,8 +220,7 @@ if args.mode == "research":
             print(f"Confusion Matrix of Machine Learning Method {args.method}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
-            print_prediction_result(data, y_pred) 
-            
+                        
         """
         ''' Inverting back categorical data '''
         # Invert back categories
