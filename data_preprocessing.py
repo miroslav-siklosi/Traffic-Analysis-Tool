@@ -44,7 +44,7 @@ def import_unlabelled_dataset(filename):
     
     return {"X_test": X_test}
 
-def import_dataset(filename, split, separate_y):
+def import_dataset(filename, split):
     # Importing the dataset
     dataset = pd.read_csv(filename)
     

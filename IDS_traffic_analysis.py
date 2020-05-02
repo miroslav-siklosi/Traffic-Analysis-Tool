@@ -46,7 +46,7 @@ parser.add_argument("--method", dest="method", choices=methods_flags, required=T
 parser.add_argument("--source", dest="source", required=True)
 # parser.add_argument("--labelled", dest="labelled", choices=["yes", "no"], required=False, default="yes")
 
-args = parser.parse_args(["--mode", "research", "--method", "DTC", "--command", "trainandtest", "--source", "Datasets\sample_data.csv", "--labelled", "yes"])
+args = parser.parse_args(["--mode", "research", "--method", "DTC", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
 #args = parser.parse_args()
 
 # TODO remove before publishing
@@ -152,9 +152,10 @@ if args.mode == "research":
             method = methods[args.method]
             y_pred = method(data)
         
-            CM = confusion_matrix(data["y_test"], y_pred)
-            
-            # TODO print results
+            # Print results
+            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(confusion_matrix(data["y_test"], y_pred))
+            print_metrics(args.method, data, y_pred)
             
         else: # supervised, deeplearning
             if args.method in deepLearning:
@@ -167,8 +168,9 @@ if args.mode == "research":
                 classifier = load_classifier(f"classifiers/classifier_{args.method}.joblib")
                 y_pred = classifier.predict(data["X_test"])
                 
-            CM = confusion_matrix(data["y_test"], y_pred)
-        
+            # Print results
+            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
             
     else: # trainandtest
@@ -181,8 +183,9 @@ if args.mode == "research":
             method = methods[args.method]
             y_pred = method(data)
         
-            CM = confusion_matrix(data["y_test"], y_pred)
-            
+            # Print results
+            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
         
         else: # supervised, deeplearning
@@ -196,9 +199,9 @@ if args.mode == "research":
                 # Invert back to numbers
                 y_pred = np.argmax(y_pred, axis = 1)
             
-            CM = confusion_matrix(data["y_test"], y_pred)
-            
-            # TODO print results
+            # Print results
+            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
             
         """
