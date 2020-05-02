@@ -7,22 +7,27 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 # Importing the libraries
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
 
+# Method for importing unlabelled dataset
 def import_unlabelled_dataset(filename):
+    # Load the dataset
     dataset = pd.read_csv(filename)
     
+    # Load dataset into matrix of independant variables 
     X_test = dataset.iloc[:, list(range(4, 6)) + list(range(7, 84))].values
 
-    # TODO: Standardize this part
+    # Taking care of missing and incorrect data
     SUM = 0
     MAX = 0
     COUNT = 0
     
+    # Count avarage values in columns 15 and 16
     for i, row in enumerate(X_test):
         for j in [15, 16]:
             sx = str(float(X_test[i,j])).lower()
@@ -44,22 +49,22 @@ def import_unlabelled_dataset(filename):
     
     return {"X_test": X_test}
 
+# Method for importing labelled dataset
 def import_dataset(filename, split):
-    # Importing the dataset
+    
+    # Load the dataset
     dataset = pd.read_csv(filename)
     
     # Splitting the dataset into independent and dependent variables
     X = dataset.iloc[:, list(range(4, 6)) + list(range(7, 84))].values
     y = dataset.iloc[:, -1].values
     
-    # TODO Take care of date and time values - encode into timestamps
-    
     # Taking care of missing and incorrect data
-    # TODO: Standardize this part
     SUM = 0
     MAX = 0
     COUNT = 0
     
+    # Count avarage values in columns 15 and 16
     for i, row in enumerate(X):
         for j in [15, 16]:
             sx = str(float(X[i,j])).lower()

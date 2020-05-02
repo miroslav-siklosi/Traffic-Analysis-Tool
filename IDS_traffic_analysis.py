@@ -25,7 +25,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from data_preprocessing import import_dataset, import_unlabelled_dataset
 from keras.models import load_model
 
-# Create parser
+# List of ML methods flags for parser
 methods_flags = (
     "LR",
     "K-NN",
@@ -39,7 +39,8 @@ methods_flags = (
     "ANN",
 )
 
-parser = argparse.ArgumentParser(prog="PROG.py")
+# Create parser
+parser = argparse.ArgumentParser(prog="IDS_traffic_analysis.py")
 parser.add_argument("--mode", dest="mode", choices=["research", "prod"], required=True)
 parser.add_argument("--command", dest="command", choices=["train", "test", "trainandtest"], required=True)
 parser.add_argument("--method", dest="method", choices=methods_flags, required=True)
@@ -56,6 +57,12 @@ print(args.method)
 print(args.source)
 #print(args.labelled)
 
+# Definition of ML Methods - used in parser due to different needs of each methods
+supervised = ("LR", "K-NN", "SVM", "kSVM", "NB", "DTC", "RFC")
+unsupervised = ("K-Means", "HC")
+deepLearning = ("ANN")
+
+# Method to print metrics in command line
 def print_metrics(method, data, y_pred):
     # accuracy: (tp + tn) / (p + n)
     accuracy = accuracy_score(data["y_test"], y_pred)
@@ -70,6 +77,7 @@ def print_metrics(method, data, y_pred):
     f1 = f1_score(data["y_test"], y_pred)
     print(f"F1-Score of Machine Learning method {method} is", f1)
 
+# Method to print Prediction results into text file
 def print_prediction_result(data, y_pred):
     # [X_test, y_pred] Prediction is correct/Prediction is NOT correct
     X_test = data["dataset"]["Syslog"]
@@ -85,11 +93,7 @@ def print_prediction_result(data, y_pred):
                  f.write("Prediction is NOT correct\n")
     print(f"Prediction results saved into prediction_result.txt")
     
-supervised = ("LR", "K-NN", "SVM", "kSVM", "NB", "DTC", "RFC")
-unsupervised = ("K-Means", "HC")
-deepLearning = ("ANN")
-
-
+# Method for saving ML weights (classifier)
 def save_classifier(classifier, method):
     if method in supervised:
         output_filename = f"classifiers/classifier_{method}.joblib"
@@ -99,7 +103,7 @@ def save_classifier(classifier, method):
         classifier.save(output_filename)
     return output_filename
 
-
+# Verify if dataset to import is in correct format
 def is_dataset_source(filename):
     filename = filename.lower()
     if filename.endswith(".csv"):
@@ -109,7 +113,8 @@ def is_dataset_source(filename):
     else:
         print(f"Invalid file extension on file {filename}")
         sys.exit(1)
-        
+
+# Method to load saved ML weight file (classifier)        
 def load_classifier(filename):
     filepath = filename.lower()
     try:
@@ -132,6 +137,7 @@ def load_classifier(filename):
         print(f"{filepath} was not found!")
         sys.exit(1)
 
+# Assigning ML methods to corresponding parser flags
 methods = {"LR": ML.method_LR, "K-NN": ML.method_KNN, "SVM":  ML.method_SVM, "kSVM":  ML.method_kSVM,
            "NB": ML.method_NB, "DTC":  ML.method_DTC, "RFC":  ML.method_RFC, "K-Means":  ML.method_KMeans,
            "HC": ML.method_HC, "ANN":  ML.method_ANN}
@@ -140,9 +146,9 @@ methods = {"LR": ML.method_LR, "K-NN": ML.method_KNN, "SVM":  ML.method_SVM, "kS
     print("Dataset needs to be labelled")
     sys.exit(1)'''
 
-if args.mode == "research":
-
-    if args.command == "train":
+# PARSER (MENU)
+if args.mode == "research": #RESEARCH MODE
+    if args.command == "train": # TRAIN
         if args.method in unsupervised:
             print("Unsupervised does not need training...exiting")
             sys.exit(1)
@@ -152,18 +158,18 @@ if args.mode == "research":
             data = import_dataset(args.source, split=False)
             method = methods[args.method]
             classifier = method(data)
-        else: # classifier
+        else: # Classifier
             classifier = load_classifier(args.source)
         output_filename = save_classifier(classifier, args.method)
         print(f"Trained classifier saved into file {output_filename}")
     
-    elif args.command == "test": # test
+    elif args.command == "test": # TEST
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
             sys.exit(1)
     
         data = import_dataset(args.source, split=False)
-        if args.method in unsupervised:
+        if args.method in unsupervised: # Unsupervised
             method = methods[args.method]
             y_pred = method(data)
         
@@ -173,7 +179,7 @@ if args.mode == "research":
             print_metrics(args.method, data, y_pred)
             print_prediction_result(data, y_pred) 
             
-        else: # supervised, deeplearning
+        else: # Supervised, Deep Learning
             if args.method in deepLearning:
                 classifier = load_classifier(f"classifiers/classifier_{args.method}.h5")
                 y_pred = classifier.predict(data["X_test"])
@@ -190,12 +196,12 @@ if args.mode == "research":
             print_metrics(args.method, data, y_pred)
             print_prediction_result(data, y_pred) 
             
-    else: # trainandtest
+    else: # TRAIN AND TEST
         if not is_dataset_source(args.source):
                 print(f"{args.source} is not dataset with extension .csv")
                 sys.exit(1)
 
-        if args.method in unsupervised:
+        if args.method in unsupervised: # Unsupervised
             data = import_dataset(args.source, split=False)
             method = methods[args.method]
             y_pred = method(data)
@@ -205,7 +211,7 @@ if args.mode == "research":
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.method, data, y_pred)
                     
-        else: # supervised, deeplearning
+        else: # Supervised, Deep Learning
             data = import_dataset(args.source, split=True)
             method = methods[args.method]
             classifier = method(data) 
@@ -230,8 +236,8 @@ if args.mode == "research":
         y_inverted = data["labelEncoder_y"].inverse_transform(invert_y)
         y_train_inverted = data["labelEncoder_y"].inverse_transform(invert_y_train)
         """
-else: # prod
-    if args.command == "train":
+else: # PRODUCTION MODE
+    if args.command == "train": # TRAIN
         if args.method in unsupervised:
             print("Unsupervised does not need training...exiting")
             sys.exit(1)
@@ -241,24 +247,24 @@ else: # prod
             data = import_dataset(args.source, split=False)
             method = methods[args.method]
             classifier = method(data)
-        else: # classifier
+        else: # Classifier
             classifier = load_classifier(args.source)
         output_filename = save_classifier(classifier, args.method)
         print(f"Trained classifier saved into file {output_filename}")
     
-    elif args.command == "test": # test
+    elif args.command == "test": # TEST
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
             sys.exit(1)
     
         data = import_unlabelled_dataset(args.source) 
-        if args.method in unsupervised:
+        if args.method in unsupervised: # Unsupervised
             method = methods[args.method]
             y_pred = method(data)
     
             # TODO Label logs and print in file
             
-        else: # supervised, deeplearning
+        else: # Supervised, Deep Learning
             if args.method in deepLearning:
                 classifier = load_classifier(f"classifiers/classifier_{args.method}.h5")
                 y_pred = classifier.predict(data["X_test"])
@@ -284,10 +290,9 @@ else: # prod
                 for row in labelled_dataset:
                     r = np.array2string(row, separator=', ', max_line_width=np.inf)
                     f.write(f"{r[1:-1]}\n")
-                #f.write(np.array2string(labelled_dataset, separator=',', max_line_width=np.inf))
-                #f.write(np.array2string(args.method, separator=',', max_line_width=np.inf))
+
             print(f"Labelled dataset printed out to Results/{args.method}_labelled.csv")
 
-    else: # trainandtest
-        print("trainandtest is possible only in research mode")
+    else: # TRAIN AND TEST
+        print("Train and Test is possible only in research mode")
         sys.exit(1)
