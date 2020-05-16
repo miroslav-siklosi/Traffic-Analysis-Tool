@@ -25,7 +25,7 @@ def method_LR(data):
     
     return classifier_LR
 
-''' K-NN '''    
+''' K-Nearest Neighbor '''    
 def method_KNN(data):
     from sklearn.neighbors import KNeighborsClassifier
     
@@ -105,7 +105,7 @@ def method_HC(data):
     return y_hc
 
 ''' DEEP LEARNING METHODS '''
-''' ARTIFICAL NEURAL NETWORK METHOD '''
+''' ARTIFICIAL NEURAL NETWORK METHOD '''
 def method_ANN(data):
     from keras.models import Sequential
     from keras.layers import Dense
