@@ -27,7 +27,7 @@ def import_unlabelled_dataset(filename):
     MAX = 0
     COUNT = 0
     
-    # Count avarage values in columns 15 and 16
+    # Count average values in columns 15 and 16
     for i, row in enumerate(X_test):
         for j in [15, 16]:
             sx = str(float(X_test[i,j])).lower()
@@ -37,15 +37,15 @@ def import_unlabelled_dataset(filename):
                     MAX = X_test[i,j]
                 COUNT = COUNT + 1
     
-    AVARAGE = SUM/COUNT
+    AVERAGE = SUM/COUNT
     
     for i, row in enumerate(X_test):
         for j in [15, 16]:
             sx = str(float(X_test[i,j])).lower()
             if  sx == "nan":
-                X_test[i, j] = AVARAGE    
+                X_test[i, j] = AVERAGE    
             if  sx == "inf":
-                X_test[i, j] = MAX * 10 # max hodnoty float("inf")
+                X_test[i, j] = MAX
     
     return {"X_test": X_test}
 
@@ -64,7 +64,7 @@ def import_dataset(filename, split):
     MAX = 0
     COUNT = 0
     
-    # Count avarage values in columns 15 and 16
+    # Count average values in columns 15 and 16
     for i, row in enumerate(X):
         for j in [15, 16]:
             sx = str(float(X[i,j])).lower()
@@ -74,15 +74,15 @@ def import_dataset(filename, split):
                     MAX = X[i,j]
                 COUNT = COUNT + 1
     
-    AVARAGE = SUM/COUNT
+    AVERAGE = SUM/COUNT
     
     for i, row in enumerate(X):
         for j in [15, 16]:
             sx = str(float(X[i,j])).lower()
             if  sx == "nan":
-                X[i, j] = AVARAGE    
+                X[i, j] = AVERAGE    
             if  sx == "inf":
-                X[i, j] = MAX * 10 # max hodnoty float("inf")
+                X[i, j] = MAX
     
     # Encoding categorical data    
     labelEncoder_y = LabelEncoder()
