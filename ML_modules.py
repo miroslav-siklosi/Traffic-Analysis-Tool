@@ -12,36 +12,28 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 """
 
-''' CLASSIFICATION METHODS '''
+''' SUPERVISED ALGORITHMS '''
 
 ''' Logistic Regression '''
 def method_LR(data):    
     from sklearn.linear_model import LogisticRegression
     
-    classifier_LR = LogisticRegression(random_state = 0)
+    classifier_LR = LogisticRegression(penalty='none', random_state = 0)
     classifier_LR.fit(data["X_train"], data["y_train"])
     
     return classifier_LR
 
-''' K-Nearest Neighbor '''    
+''' K-NN '''    
 def method_KNN(data):
     from sklearn.neighbors import KNeighborsClassifier
     
-    classifier_KNN = KNeighborsClassifier(n_neighbors = 5, metric = 'minkowski', p = 2)
+    classifier_KNN = KNeighborsClassifier(n_neighbors = 5, metric = 'hamming')
     classifier_KNN.fit(data["X_train"], data["y_train"])
     
     return classifier_KNN
-
-''' SVM ''' #This one can take too much time to process
-def method_SVM(data):
-    from sklearn.svm import SVC
-    
-    classifier_SVM = SVC(kernel = 'linear', random_state = 0)
-    classifier_SVM.fit(data["X_train"], data["y_train"])
-    
-    return classifier_SVM
 
 ''' Kernel SVM '''
 def method_kSVM(data):
@@ -74,37 +66,61 @@ def method_DTC(data):
 def method_RFC(data):
     from sklearn.ensemble import RandomForestClassifier
     
-    classifier_RFC = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 0)
+    classifier_RFC = RandomForestClassifier(n_estimators = 50, criterion = 'entropy', random_state = 0)
     classifier_RFC.fit(data["X_train"], data["y_train"])
     
     return classifier_RFC
 
 
-''' CLUSTERING METHODS '''
+''' UNSUPERVISED ALGORITHMS '''
+
+''' One-class SVM '''
+def method_ocSVM(data):
+    from sklearn.svm import OneClassSVM
+    
+    ocSVM = OneClassSVM(kernel="rbf")
+    y_pred = ocSVM.fit_predict(data["X_test"])
+    
+    return y_pred
+
+''' Isolation Forest '''
+def method_iF(data):
+    from sklearn.ensemble import IsolationForest
+    
+    iF = IsolationForest(random_state=0)
+    y_pred = iF.fit_predict(data["X_test"])
+    
+    return y_pred
+
+''' Local Outlier Factor '''
+def method_LOF(data):
+    from sklearn.neighbors import LocalOutlierFactor
+    
+    lof = LocalOutlierFactor(metric = 'hamming')
+    y_pred = lof.fit_predict(data["X_test"])
+    
+    return y_pred
 
 ''' K-Means Machine Learning Method '''
 def method_KMeans(data):
     from sklearn.cluster import KMeans
     
-    kmeans = KMeans(n_clusters = data["n_labels_y"], init = 'k-means++', random_state = 42)
+    kmeans = KMeans(n_clusters = 2, init = 'k-means++', algorithm = 'full', random_state = 42)
+    y_pred = kmeans.fit_predict(data["X_test"])
     
-    # Predicting the Test set results
-    y_kmeans = kmeans.fit_predict(data["X"])
-    
-    return y_kmeans
+    return y_pred
 
 ''' Hierarchical Clustering '''
 def method_HC(data):
     from sklearn.cluster import AgglomerativeClustering
     
-    hc = AgglomerativeClustering(n_clusters = data["n_labels_y"], affinity = 'euclidean', linkage = 'ward')
+    hc = AgglomerativeClustering(n_clusters = 2, affinity = 'euclidean', linkage = 'ward')
+    y_pred = hc.fit_predict(data["X_test"])
     
-    # Predicting the Test set results
-    y_hc = hc.fit_predict(data["X"])
-    
-    return y_hc
+    return y_pred
 
-''' DEEP LEARNING METHODS '''
+''' NEURAL NETWORKS '''
+
 ''' ARTIFICIAL NEURAL NETWORK METHOD '''
 def method_ANN(data):
     from keras.models import Sequential
@@ -114,20 +130,21 @@ def method_ANN(data):
     classifier_ANN = Sequential()
     
     # Adding the input layer and the first hidden layer
-    classifier_ANN.add(Dense(output_dim = 39, init = 'uniform', activation = 'relu', input_dim = 79))
+    classifier_ANN.add(Dense(activation="relu", input_dim=200, units=101, kernel_initializer="uniform"))
     
     # Adding the hidden layers
-    h_layers = 1
+    h_layers = 10
     for i in range(h_layers):
-        classifier_ANN.add(Dense(output_dim = 39, init = 'uniform', activation = 'relu'))
+        classifier_ANN.add(Dense(activation="relu", units=101, kernel_initializer="uniform"))
     
     # Adding the output layer
-    classifier_ANN.add(Dense(output_dim = data["n_labels_y_train"], init = 'uniform', activation = 'softmax'))
+    classifier_ANN.add(Dense(activation="sigmoid", units=2, kernel_initializer="uniform"))
     
     # Compiling the ANN
-    classifier_ANN.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+    classifier_ANN.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
     
     # Fitting the ANN to the Training set
-    classifier_ANN.fit(data["X_train"], data["encoded_y_train"], batch_size = 10, epochs = 10)
+    classifier_ANN.fit(data["X_train"], data["y_train"], batch_size = 10, epochs = 10)
     
     return classifier_ANN
+

@@ -10,9 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # Importing the libraries
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+import numpy as np
 from sklearn.model_selection import train_test_split
-from keras.utils import to_categorical
 
 # Method for importing unlabelled dataset
 def import_unlabelled_dataset(filename):
@@ -47,7 +46,7 @@ def import_unlabelled_dataset(filename):
             if  sx == "inf":
                 X_test[i, j] = MAX
     
-    return {"X_test": X_test}
+    return {"dataset": dataset, "X_test": X_test}
 
 # Method for importing labelled dataset
 def import_dataset(filename, split):
@@ -57,7 +56,7 @@ def import_dataset(filename, split):
     
     # Splitting the dataset into independent and dependent variables
     X = dataset.iloc[:, list(range(4, 6)) + list(range(7, 84))].values
-    y = dataset.iloc[:, -1].values
+    y = np.array([0 if val == "BENIGN" else 1 for val in dataset.iloc[:, -1].values])
     
     # Taking care of missing and incorrect data
     SUM = 0
@@ -84,10 +83,6 @@ def import_dataset(filename, split):
             if  sx == "inf":
                 X[i, j] = MAX
     
-    # Encoding categorical data    
-    labelEncoder_y = LabelEncoder()
-    y = labelEncoder_y.fit_transform(y)
-    
     # Splitting the dataset into the Training set and Test set   
     if split:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
@@ -96,17 +91,9 @@ def import_dataset(filename, split):
         X_test = X
         y_train = y
         y_test = y
-    
-    # Creating Dummy Variables
-    encoded_y = to_categorical(y)
-    encoded_y_train = to_categorical(y_train)
-    n_labels_y = len(encoded_y[0])
-    n_labels_y_train = len(encoded_y_train[0])
-    
+
     return {"dataset": dataset, 
             "X": X, "y": y, 
             "X_train": X_train, "X_test": X_test,
-            "y_train": y_train, "y_test": y_test, 
-            "encoded_y": encoded_y, "n_labels_y": n_labels_y,
-            "encoded_y_train": encoded_y_train, "n_labels_y_train": n_labels_y_train,
-            "labelEncoder_y": labelEncoder_y}
+            "y_train": y_train, "y_test": y_test
+            }
