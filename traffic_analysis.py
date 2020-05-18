@@ -47,9 +47,9 @@ parser.add_argument("--command", dest="command", choices=["train", "test", "trai
 parser.add_argument("--method", dest="method", choices=methods_flags, required=True)
 parser.add_argument("--source", dest="source", required=True)
 
-args = parser.parse_args(["--mode", "research", "--method", "iF", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "research", "--method", "iF", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
 #args = parser.parse_args(["--mode", "prod", "--method", "iF", "--command", "test", "--source", "Datasets\sample_data.csv"])
-#args = parser.parse_args()
+args = parser.parse_args()
 
 # TODO remove before publishing
 print(args.command)
