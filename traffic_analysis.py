@@ -24,8 +24,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from data_preprocessing import import_dataset, import_unlabelled_dataset
 from keras.models import load_model
 
-# List of ML methods flags for parser
-methods_flags = (
+# List of ML models flags for parser
+models_flags = (
     "LR",
     "K-NN",
     "ocSVM",
@@ -44,46 +44,46 @@ methods_flags = (
 parser = argparse.ArgumentParser(prog="IDS_traffic_analysis.py")
 parser.add_argument("--mode", dest="mode", choices=["research", "prod"], required=True)
 parser.add_argument("--command", dest="command", choices=["train", "test", "trainandtest"], required=True)
-parser.add_argument("--method", dest="method", choices=methods_flags, required=True)
+parser.add_argument("--model", dest="model", choices=models_flags, required=True)
 parser.add_argument("--source", dest="source", required=True)
 
-#args = parser.parse_args(["--mode", "research", "--method", "iF", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
-#args = parser.parse_args(["--mode", "prod", "--method", "iF", "--command", "test", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "research", "--model", "iF", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "prod", "--model", "iF", "--command", "test", "--source", "Datasets\sample_data.csv"])
 args = parser.parse_args()
 
 # TODO remove before publishing
 print(args.command)
 print(args.mode)
-print(args.method)
+print(args.model)
 print(args.source)
 
-# Definition of ML Methods - used in parser due to different needs of each methods
+# Definition of ML models - used in parser due to different needs of each models
 supervised = ("LR", "K-NN", "kSVM", "NB", "DTC", "RFC")
 unsupervised = ("ocSVM", "iF", "LOF", "K-Means", "HC")
 deepLearning = ("ANN")
 
-# Assigning ML methods to corresponding parser flags
-methods = {"LR": ML.method_LR, "K-NN": ML.method_KNN, "kSVM":  ML.method_kSVM, 
-           "NB": ML.method_NB, "DTC":  ML.method_DTC, "RFC":  ML.method_RFC, 
-           "ocSVM":  ML.method_ocSVM, "iF": ML.method_iF, "LOF": ML.method_LOF, 
-           "K-Means":  ML.method_KMeans, "HC": ML.method_HC, "ANN":  ML.method_ANN}
+# Assigning ML models to corresponding parser flags
+models = {"LR": ML.model_LR, "K-NN": ML.model_KNN, "kSVM":  ML.model_kSVM, 
+           "NB": ML.model_NB, "DTC":  ML.model_DTC, "RFC":  ML.model_RFC, 
+           "ocSVM":  ML.model_ocSVM, "iF": ML.model_iF, "LOF": ML.model_LOF, 
+           "K-Means":  ML.model_KMeans, "HC": ML.model_HC, "ANN":  ML.model_ANN}
 
-# Method to print metrics in command line
-def print_metrics(method, data, y_pred):
+# model to print metrics in command line
+def print_metrics(model, data, y_pred):
     # accuracy: (tp + tn) / (p + n)
     accuracy = accuracy_score(data["y_test"], y_pred)
-    print(f"Accuracy of Machine Learning method {method} is", accuracy)
+    print(f"Accuracy of Machine Learning model {model} is", accuracy)
     # precision tp / (tp + fp)
     precision = precision_score(data["y_test"], y_pred)
-    print(f"Precision of Machine Learning method {method} is", precision)
+    print(f"Precision of Machine Learning model {model} is", precision)
     # recall: tp / (tp + fn)
     recall = recall_score(data["y_test"], y_pred)
-    print(f"Recall of Machine Learning method {method} is", recall)
+    print(f"Recall of Machine Learning model {model} is", recall)
     # f1: 2 tp / (2 tp + fp + fn)
     f1 = f1_score(data["y_test"], y_pred)
-    print(f"F1-Score of Machine Learning method {method} is", f1)
+    print(f"F1-Score of Machine Learning model {model} is", f1)
 
-# Method to print Prediction results into the text file
+# model to print Prediction results into the text file
 def print_prediction_result(data, y_pred, input_filepath):
     # [X_test, y_pred] Prediction is correct/Prediction is NOT correct
     # X_test = data["X_test"]
@@ -103,13 +103,13 @@ def print_prediction_result(data, y_pred, input_filepath):
                     f.write("Prediction is NOT correct\n")
     print(f"Prediction results saved into prediction_result.csv")
     
-# Method for saving ML weights (classifier)
-def save_classifier(classifier, method):
-    if method in supervised:
-        output_filename = f"classifiers/classifier_{method}.joblib"
+# model for saving ML weights (classifier)
+def save_classifier(classifier, model):
+    if model in supervised:
+        output_filename = f"classifiers/classifier_{model}.joblib"
         dump(classifier, output_filename)
-    elif method in deepLearning:
-        output_filename = f"classifiers/classifier_{method}.h5"
+    elif model in deepLearning:
+        output_filename = f"classifiers/classifier_{model}.h5"
         classifier.save(output_filename)
     return output_filename
 
@@ -124,19 +124,19 @@ def is_dataset_source(filename):
         print(f"Invalid file extension on file {filename}")
         sys.exit(1)
 
-# Method to load saved ML weight file (classifier)        
+# model to load saved ML weight file (classifier)        
 def load_classifier(filename):
     filepath = filename.lower()
     try:
         if filepath.endswith(".joblib"):
-            if args.method not in supervised:
-                print(f"Invalid classifier type for the {args.method} learning method")
+            if args.model not in supervised:
+                print(f"Invalid classifier type for the {args.model} learning model")
                 sys.exit(1)
             
             return load(filename)
         elif filepath.endswith(".h5"):
-            if args.method not in deepLearning:
-                print(f"Invalid classifier type for the {args.method} learning method")
+            if args.model not in deepLearning:
+                print(f"Invalid classifier type for the {args.model} learning model")
                 sys.exit(1)
             
             return load_model(filename)
@@ -150,18 +150,18 @@ def load_classifier(filename):
 # PARSER (MENU)
 if args.mode == "research": #RESEARCH MODE
     if args.command == "train": # TRAIN
-        if args.method in unsupervised:
+        if args.model in unsupervised:
             print("Unsupervised does not need training...exiting")
             sys.exit(1)
         
         dataset_source = is_dataset_source(args.source)
         if dataset_source:
             data = import_dataset(args.source, split=False)
-            method = methods[args.method]
-            classifier = method(data)
+            model = models[args.model]
+            classifier = model(data)
         else: # Classifier
             classifier = load_classifier(args.source)
-        output_filename = save_classifier(classifier, args.method)
+        output_filename = save_classifier(classifier, args.model)
         print(f"Trained classifier saved into file {output_filename}")
     
     elif args.command == "test": # TEST
@@ -170,11 +170,11 @@ if args.mode == "research": #RESEARCH MODE
             sys.exit(1)
     
         data = import_dataset(args.source, split=False)
-        if args.method in unsupervised: # Unsupervised
-            method = methods[args.method]
-            y_pred = method(data)
+        if args.model in unsupervised: # Unsupervised
+            model = models[args.model]
+            y_pred = model(data)
             
-            if args.method == "ocSVM" or "iF":
+            if args.model == "ocSVM" or "iF":
                 for i, row in enumerate(y_pred):                    
                     if y_pred[i] == 1:
                         y_pred[i] = 0
@@ -182,26 +182,26 @@ if args.mode == "research": #RESEARCH MODE
                         y_pred[i] = 1
         
             # Print results
-            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
-            print_metrics(args.method, data, y_pred)
+            print_metrics(args.model, data, y_pred)
             print_prediction_result(data, y_pred, args.source) 
             
         else: # Supervised, Deep Learning
-            if args.method in deepLearning:
-                classifier = load_classifier(f"classifiers/classifier_{args.method}.h5")
+            if args.model in deepLearning:
+                classifier = load_classifier(f"classifiers/classifier_{args.model}.h5")
                 y_pred = classifier.predict(data["X_test"])
                 y_pred = (y_pred > 0.5)
                 # Invert back to numbers
                 y_pred = np.argmax(y_pred, axis = 1)
             else:
-                classifier = load_classifier(f"classifiers/classifier_{args.method}.joblib")
+                classifier = load_classifier(f"classifiers/classifier_{args.model}.joblib")
                 y_pred = classifier.predict(data["X_test"])
                 
             # Print results
-            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
-            print_metrics(args.method, data, y_pred)
+            print_metrics(args.model, data, y_pred)
             print_prediction_result(data, y_pred, args.source) 
             
     else: # TRAIN AND TEST
@@ -209,12 +209,12 @@ if args.mode == "research": #RESEARCH MODE
                 print(f"{args.source} is not dataset with extension .csv")
                 sys.exit(1)
 
-        if args.method in unsupervised: # Unsupervised
+        if args.model in unsupervised: # Unsupervised
             data = import_dataset(args.source, split=False)
-            method = methods[args.method]
-            y_pred = method(data)
+            model = models[args.model]
+            y_pred = model(data)
             
-            if args.method == "ocSVM" or "iF":
+            if args.model == "ocSVM" or "iF":
                 for i, row in enumerate(y_pred):                    
                     if y_pred[i] == 1:
                         y_pred[i] = 0
@@ -222,42 +222,42 @@ if args.mode == "research": #RESEARCH MODE
                         y_pred[i] = 1
         
             # Print results
-            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
-            print_metrics(args.method, data, y_pred)
+            print_metrics(args.model, data, y_pred)
             print_prediction_result(data, y_pred, args.source)
                     
         else: # Supervised, Deep Learning
             data = import_dataset(args.source, split=True)
-            method = methods[args.method]
-            classifier = method(data) 
+            model = models[args.model]
+            classifier = model(data) 
             y_pred = classifier.predict(data["X_test"])
  
-            if args.method in deepLearning:
+            if args.model in deepLearning:
                 y_pred = (y_pred > 0.5)
                 # Invert back to numbers
                 y_pred = np.argmax(y_pred, axis = 1)
             
             # Print results
-            print(f"Confusion Matrix of Machine Learning Method {args.method}:")
+            print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
-            print_metrics(args.method, data, y_pred)
+            print_metrics(args.model, data, y_pred)
             print_prediction_result(data, y_pred, args.source)
 
 else: # PRODUCTION MODE
     if args.command == "train": # TRAIN
-        if args.method in unsupervised:
+        if args.model in unsupervised:
             print("Unsupervised does not need training...exiting")
             sys.exit(1)
         
         dataset_source = is_dataset_source(args.source)
         if dataset_source:
             data = import_dataset(args.source, split=False)
-            method = methods[args.method]
-            classifier = method(data)
+            model = models[args.model]
+            classifier = model(data)
         else: # Classifier
             classifier = load_classifier(args.source)
-        output_filename = save_classifier(classifier, args.method)
+        output_filename = save_classifier(classifier, args.model)
         print(f"Trained classifier saved into file {output_filename}")
     
     elif args.command == "test": # TEST
@@ -266,11 +266,11 @@ else: # PRODUCTION MODE
             sys.exit(1)
     
         data = import_unlabelled_dataset(args.source) 
-        if args.method in unsupervised: # Unsupervised
-            method = methods[args.method]
-            y_pred = method(data)
+        if args.model in unsupervised: # Unsupervised
+            model = models[args.model]
+            y_pred = model(data)
             
-            if args.method == "ocSVM" or "iF":
+            if args.model == "ocSVM" or "iF":
                 for i, row in enumerate(y_pred):                    
                     if y_pred[i] == 1:
                         y_pred[i] = 0
@@ -278,24 +278,24 @@ else: # PRODUCTION MODE
                         y_pred[i] = 1
             
         else: # Supervised, Deep Learning
-            if args.method in deepLearning:
-                classifier = load_classifier(f"classifiers/classifier_{args.method}.h5")
+            if args.model in deepLearning:
+                classifier = load_classifier(f"classifiers/classifier_{args.model}.h5")
                 y_pred = classifier.predict(data["X_test"])
                 y_pred = (y_pred > 0.5)
                 # Invert back to numbers
                 y_pred = np.argmax(y_pred, axis = 1)
             else:
-                classifier = load_classifier(f"classifiers/classifier_{args.method}.joblib")
+                classifier = load_classifier(f"classifiers/classifier_{args.model}.joblib")
                 y_pred = classifier.predict(data["X_test"])
 
         labelled_dataset = np.c_[data["dataset"], ["Anomaly" if val else "Not anomaly" for val in y_pred]]
         np.set_printoptions(threshold=np.inf)
-        with open(f"Results/{args.method}_labelled.csv", 'w') as f:
+        with open(f"Results/{args.model}_labelled.csv", 'w') as f:
             for row in labelled_dataset:
                 row = np.array(list(map(lambda s: s, row)))
                 r = np.array2string(row, separator='\t ', max_line_width=np.inf, formatter={'str_kind': lambda x: x})
                 f.write(f"{r[1:-1]}\n")
-        print(f"Labelled dataset printed out to Results/{args.method}_labelled.csv")
+        print(f"Labelled dataset printed out to Results/{args.model}_labelled.csv")
     else: # TRAIN AND TEST
         print("Train and Test is possible only in research mode")
         sys.exit(1)
