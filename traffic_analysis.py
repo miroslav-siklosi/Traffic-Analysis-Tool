@@ -43,12 +43,12 @@ models_flags = (
 # Create parser
 parser = argparse.ArgumentParser(prog="IDS_traffic_analysis.py")
 parser.add_argument("--mode", dest="mode", choices=["research", "prod"], required=True)
-parser.add_argument("--command", dest="command", choices=["train", "test", "trainandtest"], required=True)
+parser.add_argument("--command", dest="command", choices=["train", "predict", "trainandpredict"], required=True)
 parser.add_argument("--model", dest="model", choices=models_flags, required=True)
 parser.add_argument("--source", dest="source", required=True)
 
-#args = parser.parse_args(["--mode", "research", "--model", "iF", "--command", "trainandtest", "--source", "Datasets\sample_data.csv"])
-#args = parser.parse_args(["--mode", "prod", "--model", "iF", "--command", "test", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "research", "--model", "iF", "--command", "trainandpredict", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "prod", "--model", "iF", "--command", "predict", "--source", "Datasets\sample_data.csv"])
 args = parser.parse_args()
 
 # TODO remove before publishing
@@ -164,7 +164,7 @@ if args.mode == "research": #RESEARCH MODE
         output_filename = save_classifier(classifier, args.model)
         print(f"Trained classifier saved into file {output_filename}")
     
-    elif args.command == "test": # TEST
+    elif args.command == "predict": # PREDICT
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
             sys.exit(1)
@@ -204,7 +204,7 @@ if args.mode == "research": #RESEARCH MODE
             print_metrics(args.model, data, y_pred)
             print_prediction_result(data, y_pred, args.source) 
             
-    else: # TRAIN AND TEST
+    else: # TRAIN AND PREDICT
         if not is_dataset_source(args.source):
                 print(f"{args.source} is not dataset with extension .csv")
                 sys.exit(1)
@@ -260,7 +260,7 @@ else: # PRODUCTION MODE
         output_filename = save_classifier(classifier, args.model)
         print(f"Trained classifier saved into file {output_filename}")
     
-    elif args.command == "test": # TEST
+    elif args.command == "predict": # PREDICT
         if not is_dataset_source(args.source):
             print(f"{args.source} is not dataset with extension .csv")
             sys.exit(1)
@@ -296,6 +296,6 @@ else: # PRODUCTION MODE
                 r = np.array2string(row, separator='\t ', max_line_width=np.inf, formatter={'str_kind': lambda x: x})
                 f.write(f"{r[1:-1]}\n")
         print(f"Labelled dataset printed out to Results/{args.model}_labelled.csv")
-    else: # TRAIN AND TEST
-        print("Train and Test is possible only in research mode")
+    else: # TRAIN AND PREDICT
+        print("Train and predict is possible only in research mode")
         sys.exit(1)
