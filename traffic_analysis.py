@@ -47,9 +47,10 @@ parser.add_argument("--command", dest="command", choices=["train", "predict", "t
 parser.add_argument("--model", dest="model", choices=models_flags, required=True)
 parser.add_argument("--source", dest="source", required=True)
 
-#args = parser.parse_args(["--mode", "research", "--model", "iF", "--command", "trainandpredict", "--source", "Datasets\sample_data.csv"])
+args = parser.parse_args(["--mode", "research", "--model", "NB", "--command", "trainandpredict", "--source", "Datasets\sample_data.csv"])
+#args = parser.parse_args(["--mode", "research", "--model", "ANN", "--command", "trainandpredict", "--source", "Datasets\logs2.csv"])
 #args = parser.parse_args(["--mode", "prod", "--model", "iF", "--command", "predict", "--source", "Datasets\sample_data.csv"])
-args = parser.parse_args()
+#args = parser.parse_args()
 
 # TODO remove before publishing
 print(args.command)
@@ -225,7 +226,7 @@ if args.mode == "research": #RESEARCH MODE
             print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.model, data, y_pred)
-            print_prediction_result(data, y_pred, args.source)
+            #print_prediction_result(data, y_pred, args.source)
                     
         else: # Supervised, Deep Learning
             data = import_dataset(args.source, split=True)
@@ -242,7 +243,7 @@ if args.mode == "research": #RESEARCH MODE
             print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.model, data, y_pred)
-            print_prediction_result(data, y_pred, args.source)
+            #print_prediction_result(data, y_pred, args.source)
 
 else: # PRODUCTION MODE
     if args.command == "train": # TRAIN
