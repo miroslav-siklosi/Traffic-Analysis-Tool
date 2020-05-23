@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 def model_LR(data):    
     from sklearn.linear_model import LogisticRegression
     
-    classifier_LR = LogisticRegression(penalty='none', random_state = 0)
+    classifier_LR = LogisticRegression(penalty='l2', max_iter = 1000, random_state = 0)
     classifier_LR.fit(data["X_train"], data["y_train"])
     
     return classifier_LR
@@ -130,12 +130,12 @@ def model_ANN(data):
     classifier_ANN = Sequential()
     
     # Adding the input layer and the first hidden layer
-    classifier_ANN.add(Dense(activation="relu", input_dim=200, units=101, kernel_initializer="uniform"))
+    classifier_ANN.add(Dense(activation="relu", input_dim=79, units=39, kernel_initializer="uniform"))
     
     # Adding the hidden layers
     h_layers = 10
     for i in range(h_layers):
-        classifier_ANN.add(Dense(activation="relu", units=101, kernel_initializer="uniform"))
+        classifier_ANN.add(Dense(activation="relu", units=39, kernel_initializer="uniform"))
     
     # Adding the output layer
     classifier_ANN.add(Dense(activation="sigmoid", units=2, kernel_initializer="uniform"))
