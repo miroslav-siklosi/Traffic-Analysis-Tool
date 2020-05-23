@@ -1,5 +1,7 @@
 # Traffic Analysis Tool
 
+### Tool for security anomaly detection and analysis using Machine Leaning methods, created as part of Master Thesis.
+
 Traffic Analysis tool is analyzing CICIDS2017 dataset. 
 This dataset is already parsed into .csv file so it is easier to process. Dataset is already labelled.
 This tool is created to detect security anomalies using Machine Learning methods.
