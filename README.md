@@ -1,4 +1,4 @@
-# IDS-Traffic-Analysis
+# Traffic Analysis Tool
 
 Traffic Analysis tool is analyzing CICIDS2017 dataset. 
 This dataset is already parsed into .csv file so it is easier to process. Dataset is already labelled.
