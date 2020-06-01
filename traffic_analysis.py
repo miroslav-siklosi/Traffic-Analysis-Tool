@@ -12,8 +12,6 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """
-
-# Importing the libraries
 import argparse
 import sys
 import numpy as np
@@ -47,16 +45,7 @@ parser.add_argument("--command", dest="command", choices=["train", "predict", "t
 parser.add_argument("--model", dest="model", choices=models_flags, required=True)
 parser.add_argument("--source", dest="source", required=True)
 
-args = parser.parse_args(["--mode", "research", "--model", "NB", "--command", "trainandpredict", "--source", "Datasets\sample_data.csv"])
-#args = parser.parse_args(["--mode", "research", "--model", "ANN", "--command", "trainandpredict", "--source", "Datasets\logs2.csv"])
-#args = parser.parse_args(["--mode", "prod", "--model", "iF", "--command", "predict", "--source", "Datasets\sample_data.csv"])
-#args = parser.parse_args()
-
-# TODO remove before publishing
-print(args.command)
-print(args.mode)
-print(args.model)
-print(args.source)
+args = parser.parse_args()
 
 # Definition of ML models - used in parser due to different needs of each models
 supervised = ("LR", "K-NN", "kSVM", "NB", "DTC", "RFC")
@@ -69,7 +58,7 @@ models = {"LR": ML.model_LR, "K-NN": ML.model_KNN, "kSVM":  ML.model_kSVM,
            "ocSVM":  ML.model_ocSVM, "iF": ML.model_iF, "LOF": ML.model_LOF, 
            "K-Means":  ML.model_KMeans, "HC": ML.model_HC, "ANN":  ML.model_ANN}
 
-# model to print metrics in command line
+# Method to print metrics in command line
 def print_metrics(model, data, y_pred):
     # accuracy: (tp + tn) / (p + n)
     accuracy = accuracy_score(data["y_test"], y_pred)
@@ -84,10 +73,9 @@ def print_metrics(model, data, y_pred):
     f1 = f1_score(data["y_test"], y_pred)
     print(f"F1-Score of Machine Learning model {model} is", f1)
 
-# model to print Prediction results into the text file
+# Method to print Prediction results into the text file
 def print_prediction_result(data, y_pred, input_filepath):
     # [X_test, y_pred] Prediction is correct/Prediction is NOT correct
-    # X_test = data["X_test"]
     y_test = data['y_test']
     
     np.set_printoptions(threshold=np.inf, linewidth=np.inf)
@@ -104,7 +92,7 @@ def print_prediction_result(data, y_pred, input_filepath):
                     f.write("Prediction is NOT correct\n")
     print(f"Prediction results saved into prediction_result.csv")
     
-# model for saving ML weights (classifier)
+# Method for saving ML weights (classifier)
 def save_classifier(classifier, model):
     if model in supervised:
         output_filename = f"classifiers/classifier_{model}.joblib"
@@ -125,7 +113,7 @@ def is_dataset_source(filename):
         print(f"Invalid file extension on file {filename}")
         sys.exit(1)
 
-# model to load saved ML weight file (classifier)        
+# Method to load saved ML weight file (classifier)        
 def load_classifier(filename):
     filepath = filename.lower()
     try:
@@ -148,8 +136,8 @@ def load_classifier(filename):
         print(f"{filepath} was not found!")
         sys.exit(1)
 
-# PARSER (MENU)
-if args.mode == "research": #RESEARCH MODE
+# PARSER
+if args.mode == "research": # RESEARCH MODE
     if args.command == "train": # TRAIN
         if args.model in unsupervised:
             print("Unsupervised does not need training...exiting")
@@ -189,7 +177,7 @@ if args.mode == "research": #RESEARCH MODE
             print_prediction_result(data, y_pred, args.source) 
             
         else: # Supervised, Deep Learning
-            if args.model in deepLearning:
+            if args.model in deepLearning: # Deep Learning
                 classifier = load_classifier(f"classifiers/classifier_{args.model}.h5")
                 y_pred = classifier.predict(data["X_test"])
                 y_pred = (y_pred > 0.5)
@@ -226,15 +214,14 @@ if args.mode == "research": #RESEARCH MODE
             print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.model, data, y_pred)
-            #print_prediction_result(data, y_pred, args.source)
-                    
+                                
         else: # Supervised, Deep Learning
             data = import_dataset(args.source, split=True)
             model = models[args.model]
             classifier = model(data) 
             y_pred = classifier.predict(data["X_test"])
  
-            if args.model in deepLearning:
+            if args.model in deepLearning: # Deep Learning
                 y_pred = (y_pred > 0.5)
                 # Invert back to numbers
                 y_pred = np.argmax(y_pred, axis = 1)
@@ -243,8 +230,7 @@ if args.mode == "research": #RESEARCH MODE
             print(f"Confusion Matrix of Machine Learning model {args.model}:")
             print(confusion_matrix(data["y_test"], y_pred))
             print_metrics(args.model, data, y_pred)
-            #print_prediction_result(data, y_pred, args.source)
-
+            
 else: # PRODUCTION MODE
     if args.command == "train": # TRAIN
         if args.model in unsupervised:
