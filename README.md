@@ -34,4 +34,4 @@ Last but not least argument is *source*. This argument specifies which file (dat
 This project is licensed under the MIT License - see the LICENSE.md file for details.
 
 ### Acknowledgments
-[CICIDS2017](https://www.unb.ca/cic/datasets/ids-2017.html)
+- [CICIDS2017](https://www.unb.ca/cic/datasets/ids-2017.html)
